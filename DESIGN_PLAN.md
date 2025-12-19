@@ -1,10 +1,11 @@
 # PDF Accessibility Converter - Design Plan
 
-## Executive Summary
+## 📚 Executive Summary
 
 This design plan outlines the development of a web API service that enables public citizens to upload PDF documents and receive accessibility-enhanced versions that comply with WCAG 2.1 standards. The system leverages open-source Large Language Models (LLMs) to analyze document content, identify accessibility issues, and generate improvements to ensure government and public documents are accessible to all users, including those with disabilities.
 
 ### Key Objectives
+---
 - Provide a self-service tool for citizens to enhance PDF accessibility
 - Achieve WCAG 2.1 Level AA compliance as a baseline
 - Utilize open-source LLMs for intelligent content analysis and enhancement
@@ -26,28 +27,28 @@ This design plan outlines the development of a web API service that enables publ
          │ HTTPS
          ▼
 ┌─────────────────────────────────────────────────┐
-│           API Gateway / Load Balancer            │
-│         (Rate Limiting, Auth, Routing)           │
+│           API Gateway / Load Balancer           │
+│         (Rate Limiting, Auth, Routing)          │
 └────────┬────────────────────────────────────────┘
          │
          ▼
-┌─────────────────────────────────────────────────┐
-│              Web API Layer (FastAPI)             │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│  │ Upload   │  │  Status  │  │ Download │     │
-│  │ Endpoint │  │ Endpoint │  │ Endpoint │     │
-│  └──────────┘  └──────────┘  └──────────┘     │
-└────────┬────────────────────────────────────────┘
+┌────────────────────────────────────────────┐
+│              Web API Layer (FastAPI)       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│  │ Upload   │  │  Status  │  │ Download │  │
+│  │ Endpoint │  │ Endpoint │  │ Endpoint │  │
+│  └──────────┘  └──────────┘  └──────────┘  │
+└────────┬───────────────────────────────────┘
          │
          ▼
 ┌─────────────────────────────────────────────────┐
-│         Task Queue (Celery + Redis)              │
-│         (Async Processing Management)            │
+│         Task Queue (Celery + Redis)             │
+│         (Async Processing Management)           │
 └────────┬────────────────────────────────────────┘
          │
          ▼
-┌─────────────────────────────────────────────────┐
-│          Processing Pipeline Workers             │
+┌────────────────────────────────────────────────┐
+│          Processing Pipeline Workers           │
 │  ┌─────────────────────────────────────────┐   │
 │  │  1. PDF Extraction & Parsing            │   │
 │  │  2. Accessibility Analysis              │   │
@@ -55,25 +56,25 @@ This design plan outlines the development of a web API service that enables publ
 │  │  4. Document Reconstruction             │   │
 │  │  5. Validation & Quality Check          │   │
 │  └─────────────────────────────────────────┘   │
-└────────┬────────────────────────────────────────┘
+└────────┬───────────────────────────────────────┘
          │
          ▼
 ┌─────────────────────────────────────────────────┐
-│              Storage Layer                       │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│  │  Object  │  │ Database │  │  Cache   │     │
-│  │ Storage  │  │(PostgreSQL)│ │ (Redis) │     │
-│  └──────────┘  └──────────┘  └──────────┘     │
+│              Storage Layer                      │
+│  ┌──────────┐  ┌────────────┐  ┌─────────┐      │
+│  │  Object  │  │ Database   │  │  Cache  │      │
+│  │ Storage  │  │(PostgreSQL)│  │ (Redis) │      │
+│  └──────────┘  └────────────┘  └─────────┘      │
 └─────────────────────────────────────────────────┘
          │
          ▼
-┌─────────────────────────────────────────────────┐
-│          LLM Service Layer                       │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│  │  Llama   │  │ Mistral  │  │ Inference│     │
-│  │  3.x     │  │  7B      │  │  Engine  │     │
-│  └──────────┘  └──────────┘  └──────────┘     │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│          LLM Service Layer                  │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐  │
+│  │  Llama   │  │ Mistral  │  │ Inference │  │
+│  │  3.x     │  │  7B      │  │  Engine   │  │
+│  └──────────┘  └──────────┘  └───────────┘  │
+└─────────────────────────────────────────────┘
 ```
 
 ---
@@ -81,7 +82,7 @@ This design plan outlines the development of a web API service that enables publ
 ## Core Components
 
 ### 1. API Gateway Layer
-
+---
 **Responsibilities:**
 - Request routing and load balancing
 - Rate limiting (e.g., 10 uploads per hour per IP)
@@ -92,7 +93,7 @@ This design plan outlines the development of a web API service that enables publ
 **Technology:** Nginx or Traefik
 
 ### 2. Web API Service
-
+---
 **Framework:** FastAPI (Python)
 - Modern, high-performance async framework
 - Automatic OpenAPI documentation
@@ -111,7 +112,7 @@ GET    /api/v1/health                    # Health check
 ```
 
 ### 3. PDF Processing Pipeline
-
+---
 #### Stage 1: PDF Extraction & Parsing
 **Libraries:**
 - `pypdf` or `PyMuPDF (fitz)` - PDF parsing and text extraction
@@ -212,12 +213,12 @@ link text. Context: {surrounding_text}"
 
 #### Stage 4: Document Reconstruction
 
-**Libraries:**
-- `reportlab` - PDF generation
-- `pikepdf` - PDF manipulation and tagging
-- `PyPDF2` or `pypdf` - PDF merging and modification
+| Library | Purpose |
+|---------|---------|
+| `reportlab` | PDF generation |
+| `pikepdf` | PDF manipulation and tagging |
+| `pypdf` | PDF merging and modification |
 
-**Tasks:**
 - Apply LLM-generated improvements
 - Add proper PDF tags for structure (PDF/UA)
 - Embed alt text in image objects
@@ -242,15 +243,15 @@ link text. Context: {surrounding_text}"
 
 ---
 
-## Technology Stack
+## 🛠️ Technology Stack
 
 ### Backend
-- **Language:** Python 3.11+
+- **Language:** Python 3.12+
 - **Web Framework:** FastAPI
 - **Task Queue:** Celery
 - **Message Broker:** Redis
-- **Database:** PostgreSQL (document metadata, job status)
-- **Cache:** Redis (rate limiting, session management)
+- **Database:** PostgreSQL _(document metadata, job status)_
+- **Cache:** Redis _(rate limiting, session management)_
 
 ### PDF Processing
 - **pypdf / PyMuPDF:** PDF parsing
@@ -281,7 +282,7 @@ link text. Context: {surrounding_text}"
 
 ---
 
-## API Design Specification
+## ⚙️ API Design Specification
 
 ### 1. Upload Document
 
@@ -389,7 +390,7 @@ options: {
 
 ---
 
-## Processing Pipeline Workflow
+## 🔀 Processing Pipeline Workflow
 
 ```
 1. Upload Request
@@ -541,7 +542,7 @@ options: {
 
 ---
 
-## Security & Privacy Considerations
+## 🔒 Security & Privacy Considerations
 
 ### Data Protection
 
@@ -563,7 +564,7 @@ options: {
 - Use temporary storage with automatic cleanup
 
 ### Input Validation
-
+---
 **PDF Upload:**
 - Maximum file size: 50 MB
 - File type validation (magic numbers)
@@ -572,18 +573,18 @@ options: {
 - Disable JavaScript in PDFs
 
 ### Rate Limiting
-
+---
 **Per IP Address:**
 - 10 uploads per hour
 - 100 status checks per hour
 - 50 downloads per day
 
-**Per API Key (if implemented):**
+**Per API Key _(if implemented)_:**
 - 100 uploads per day
 - Adjustable limits based on tier
 
 ### Authentication & Authorization
-
+---
 **Public API (Phase 1):**
 - Anonymous uploads with rate limiting
 - Session-based status checking
@@ -594,7 +595,6 @@ options: {
 - OAuth 2.0 for government agencies
 - Role-based access control
 
----
 
 ## Scalability & Performance
 
@@ -608,13 +608,13 @@ options: {
 - **API Availability:** 99.5% uptime
 
 ### Scaling Strategy
-
-**Horizontal Scaling:**
-- Stateless API servers (scale behind load balancer)
+---
+**Horizontal:**
+- Stateless API servers _(scale behind load balancer)_
 - Multiple Celery workers on separate machines
-- Distributed LLM inference (multiple GPU nodes)
+- Distributed LLM inference _(multiple GPU nodes)_
 
-**Vertical Scaling:**
+**Vertical:**
 - GPU upgrades for faster LLM inference
 - More memory for large PDF processing
 - SSD storage for faster I/O
@@ -645,7 +645,8 @@ options: {
 
 ---
 
-## Implementation Phases
+## 🚀 Implementation Phases
+
 
 ### Phase 1: MVP (8-10 weeks)
 
@@ -728,7 +729,7 @@ options: {
 
 ---
 
-## Cost Estimation
+## 💰 Cost Estimation
 
 ### Infrastructure Costs (Monthly)
 
@@ -753,12 +754,14 @@ options: {
 - Estimated savings: $500-5,000/month depending on volume
 - Full control over model selection and optimization
 
----
 
-## Challenges & Mitigations
+## 🤔 Challenges & Mitigations
 
 ### Challenge 1: LLM Inference Latency
-**Issue:** LLM generation can be slow, especially for vision models
+---
+**Issue:**
+- LLM generation can be slow, especially for vision models
+
 **Mitigation:**
 - Use quantized models (4-bit GPTQ)
 - Batch multiple requests
@@ -766,8 +769,11 @@ options: {
 - Consider smaller specialized models
 - Use vLLM for optimized inference
 
-### Challenge 2: Scanned PDFs (Images)
-**Issue:** Scanned PDFs require OCR, which can be error-prone
+### Challenge 2: Scanned PDFs _(images)_
+---
+**Issue:**
+- Scanned PDFs require OCR, which can be error-prone
+
 **Mitigation:**
 - Use high-quality OCR (Tesseract + preprocessing)
 - LLM-based post-correction of OCR text
@@ -775,7 +781,10 @@ options: {
 - Manual review flag for low-confidence documents
 
 ### Challenge 3: Complex PDF Layouts
-**Issue:** Tables, multi-column layouts, text boxes are difficult to parse
+---
+**Issue:**
+- Tables, multi-column layouts, text boxes are difficult to parse
+
 **Mitigation:**
 - Use pdfplumber for layout detection
 - LLM-based layout understanding
@@ -783,7 +792,10 @@ options: {
 - Provide manual remediation suggestions
 
 ### Challenge 4: Maintaining PDF Fidelity
-**Issue:** Reconstruction may alter visual appearance
+---
+**Issue:**
+- Reconstruction may alter visual appearance
+
 **Mitigation:**
 - Preserve original fonts and styling
 - Use invisible text layer for accessibility
@@ -791,7 +803,10 @@ options: {
 - Allow users to accept/reject changes
 
 ### Challenge 5: LLM Hallucination
-**Issue:** LLM may generate incorrect alt text or descriptions
+---
+**Issue:**
+- LLM may generate incorrect alt text or descriptions
+
 **Mitigation:**
 - RAG implementation with WCAG guidelines
 - Confidence scoring for LLM outputs
@@ -800,7 +815,10 @@ options: {
 - Ensemble multiple LLM outputs
 
 ### Challenge 6: Scalability with Limited GPU Resources
-**Issue:** GPU inference is expensive and limited
+---
+**Issue:**
+- GPU inference is expensive and limited
+
 **Mitigation:**
 - Queue management with priority levels
 - Auto-scaling GPU nodes based on demand
@@ -809,7 +827,10 @@ options: {
 - Implement request throttling
 
 ### Challenge 7: Privacy for Sensitive Documents
-**Issue:** Users may upload confidential government documents
+---
+**Issue:**
+- Users may upload confidential government documents
+
 **Mitigation:**
 - On-premises deployment option
 - End-to-end encryption
